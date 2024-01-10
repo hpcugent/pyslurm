@@ -17,8 +17,8 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 # Keep in sync with pyproject.toml
 CYTHON_VERSION_MIN = "0.29.30"
 
-SLURM_RELEASE = "22.5"
-PYSLURM_PATCH_RELEASE = "0"
+SLURM_RELEASE = "23.2"
+PYSLURM_PATCH_RELEASE = "2"
 SLURM_SHARED_LIB = "libslurm.so"
 CURRENT_DIR = pathlib.Path(__file__).parent
 
@@ -33,7 +33,6 @@ metadata = dict(
     url="https://github.com/PySlurm/pyslurm",
     platforms=["Linux"],
     keywords=["HPC", "Batch Scheduler", "Resource Manager", "Slurm", "Cython"],
-    packages=["pyslurm"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -157,7 +156,7 @@ def cleanup_build():
         info("Removing build/")
         remove_tree("build", verbose=1)
 
-    files = find_files_with_extension("pyslurm", {".c", ".pyc"})
+    files = find_files_with_extension("pyslurm", {".c", ".pyc", ".so"})
 
     for file in files:
         if file.is_file():
@@ -263,7 +262,7 @@ def cythongen():
     else:    
         if LooseVersion(cython_version) < LooseVersion(CYTHON_VERSION_MIN):
             msg = f"Please use Cython version >= {CYTHON_VERSION_MIN}"
-            raise RuntimeError(msg)
+            #raise RuntimeError(msg)
 
 
     # Clean up temporary build objects first
@@ -300,9 +299,8 @@ def parse_setuppy_commands():
         cleanup_build()
         return False
 
-    build_cmd = ('install', 'sdist', 'build', 'build_ext', 'build_py',
-                 'build_clib', 'build_scripts', 'bdist_wheel', 'bdist_rpm',
-                 'build_src', 'bdist_egg', 'develop')
+    build_cmd = ('build', 'build_ext', 'build_py', 'build_clib',
+        'build_scripts', 'bdist_wheel', 'build_src', 'bdist_egg', 'develop')
 
     for cmd in build_cmd:
         if cmd in args:
@@ -318,10 +316,14 @@ def setup_package():
     build_it = parse_setuppy_commands()
 
     if build_it:
-        if "sdist" not in sys.argv:
-            parse_slurm_args()
-            slurm_sanity_checks()
-            cythongen()
+        parse_slurm_args()
+        slurm_sanity_checks()
+        cythongen()
+
+    if "install" in sys.argv:
+        parse_slurm_args()
+        slurm_sanity_checks()
+        metadata["ext_modules"] = make_extensions()
 
     setup(**metadata)
 
