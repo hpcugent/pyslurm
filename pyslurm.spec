@@ -1,6 +1,6 @@
 # SPEC file taken from https://centos.pkgs.org/7/puias-computational-x86_64/python-pyslurm-17.02-1.gitab899c6.sdl7.x86_64.rpm.html
 Name:		pyslurm
-Version:	22.05.1
+Version:	23.2.2
 %global	rel     1
 Release:	%{rel}%{gittag}%{?dist}.ug
 Summary:	PySlurm: Slurm Interface for Python
@@ -24,7 +24,11 @@ Source:         %{pyslurm_source_dir}.tar.gz
 BuildRequires:	python3-Cython, python36-devel
 %global usepython python3
 %global usepython_sitearch %{python3_sitearch}
-%else
+%elif 0%{?rhel} == 9
+BuildRequires:	python3-Cython, python3-devel
+%global usepython python3
+%global usepython_sitearch %{python3_sitearch}
+%%else
 BuildRequires:	Cython, python-devel
 %global usepython python
 %global usepython_sitearch %{python_sitearch}
