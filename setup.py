@@ -29,7 +29,8 @@ def get_version():
 
 
 VERSION = get_version()
-SLURM_VERSION = f"{VERSION.major}.{VERSION.minor}"
+#SLURM_VERSION = f"{VERSION.major}.{VERSION.minor}"
+SLURM_VERSION = f"23.11"
 
 
 def homepage(*args):
